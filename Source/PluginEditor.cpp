@@ -68,12 +68,17 @@ void AudioFilePlayerVSTAudioProcessorEditor::resized()
 
 void AudioFilePlayerVSTAudioProcessorEditor::playButtonClicked() 
 {
+    if (state == Paused) {
+        audioProcessor.continuePlayback();
+        changeState(Playing);
+        return;
+    }
     changeState(TransportState::Starting);
 }
 
 void AudioFilePlayerVSTAudioProcessorEditor::pauseButtonClicked()
 {
-    audioProcessor.pausePlayback();
+    changeState(Pausing);
 }
 
 void AudioFilePlayerVSTAudioProcessorEditor::browseButtonClicked()
@@ -96,6 +101,16 @@ void AudioFilePlayerVSTAudioProcessorEditor::changeState(TransportState newState
 
         switch (state)
         {
+        case Pausing: 
+            audioProcessor.pausePlayback();
+            changeState(Paused);
+            break;
+
+        case Paused:
+            playButton.setEnabled(true);
+            pauseButton.setEnabled(false);
+            break;
+
         case Stopped:                           
             playButton.setEnabled(true);
             stopButton.setEnabled(false);
@@ -109,6 +124,7 @@ void AudioFilePlayerVSTAudioProcessorEditor::changeState(TransportState newState
 
         case Playing:                           
             stopButton.setEnabled(true);
+            pauseButton.setEnabled(true);
             break;
 
         case Stopping:     

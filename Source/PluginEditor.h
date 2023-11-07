@@ -25,6 +25,8 @@ public:
     void resized() override;
 
     enum TransportState {
+        Pausing,
+        Paused,
         Stopped,
         Starting,
         Playing,
