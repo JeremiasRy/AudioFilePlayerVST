@@ -183,6 +183,11 @@ void AudioFilePlayerVSTAudioProcessor::setStateInformation (const void* data, in
     // whose contents will have been created by the getStateInformation() call.
 }
 
+void AudioFilePlayerVSTAudioProcessor::setFileForPlayback(const juce::File& file)
+{
+    fileForPlayback = file;
+}
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()

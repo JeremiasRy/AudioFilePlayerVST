@@ -15,7 +15,34 @@ AudioFilePlayerVSTAudioProcessorEditor::AudioFilePlayerVSTAudioProcessorEditor (
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (500, 300);
+
+    browseButton.setButtonText("Browse");
+    browseButton.setBounds(10, 10, 80, 30);
+    addAndMakeVisible(browseButton);
+
+    playButton.setButtonText("Play");
+    playButton.setBounds(10, 50, 80, 30);
+    playButton.setEnabled(false);
+    addAndMakeVisible(playButton);
+
+    pauseButton.setButtonText("Pause");
+    pauseButton.setBounds(10, 90, 80, 30);
+    pauseButton.setEnabled(false);
+    addAndMakeVisible(pauseButton);
+
+    stopButton.setButtonText("Stop");
+    stopButton.setBounds(10, 140, 80, 30);
+    stopButton.setEnabled(false);
+    addAndMakeVisible(stopButton);
+
+    fileNameLabel.setText("No file selected", juce::NotificationType::dontSendNotification);
+    fileNameLabel.setBounds(100, 10, 400, 30);
+    addAndMakeVisible(fileNameLabel);
+
+    playButton.onClick = [this]() { playButtonClicked(); };
+    pauseButton.onClick = [this]() { pauseButtonClicked(); };
+    browseButton.onClick = [this]() { browseButtonClicked(); };
 }
 
 AudioFilePlayerVSTAudioProcessorEditor::~AudioFilePlayerVSTAudioProcessorEditor()
@@ -30,11 +57,65 @@ void AudioFilePlayerVSTAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void AudioFilePlayerVSTAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::playButtonClicked() 
+{
+    changeState(TransportState::Starting);
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::pauseButtonClicked()
+{
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::browseButtonClicked()
+{
+    auto chooseFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+    fileChooser->launchAsync(chooseFlags, [this](const juce::FileChooser& chooser)
+        {
+            juce::File selectedFile = chooser.getResult();
+            if (selectedFile.exists()) {
+                fileChosenCallBack(selectedFile);
+            }
+        });
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::changeState(TransportState newState)
+{
+    if (state != newState)
+    {
+        state = newState;
+
+        switch (state)
+        {
+        case Stopped:                           
+            playButton.setEnabled(true);
+            break;
+
+        case Starting:                          
+            playButton.setEnabled(false);
+            break;
+
+        case Playing:                           
+            stopButton.setEnabled(true);
+            break;
+
+        case Stopping:                     
+            break;
+        }
+    }
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::fileChosenCallBack(const juce::File& file)
+{
+    audioProcessor.setFileForPlayback(file);
+    fileNameLabel.setText(file.getFileName(), juce::NotificationType::dontSendNotification);
+    browseButton.setButtonText("Change File...");
+    playButton.setEnabled(true);
 }
