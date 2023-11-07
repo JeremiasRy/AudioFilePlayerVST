@@ -53,9 +53,17 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     void setFileForPlayback(const juce::File& file);
+    void continuePlayback();
+    void startPlayback();
+    void pausePlayback();
+    void stopPlayback();
 
 private:
     //==============================================================================
+    int resamplingTarget;
     juce::File fileForPlayback;
+    juce::AudioTransportSource transportSource;
+    std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
+    juce::AudioFormatManager formatManager;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioFilePlayerVSTAudioProcessor)
 };

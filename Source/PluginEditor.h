@@ -38,6 +38,7 @@ private:
     // access the processor object that created it.
     void changeState(TransportState newState);
     void fileChosenCallBack(const juce::File&);
+    void stopButtonClicked();
     void playButtonClicked();
     void pauseButtonClicked();
     void browseButtonClicked();

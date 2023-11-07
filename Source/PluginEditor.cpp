@@ -40,6 +40,7 @@ AudioFilePlayerVSTAudioProcessorEditor::AudioFilePlayerVSTAudioProcessorEditor (
     fileNameLabel.setBounds(100, 10, 400, 30);
     addAndMakeVisible(fileNameLabel);
 
+    stopButton.onClick = [this]() { stopButtonClicked(); };
     playButton.onClick = [this]() { playButtonClicked(); };
     pauseButton.onClick = [this]() { pauseButtonClicked(); };
     browseButton.onClick = [this]() { browseButtonClicked(); };
@@ -72,6 +73,7 @@ void AudioFilePlayerVSTAudioProcessorEditor::playButtonClicked()
 
 void AudioFilePlayerVSTAudioProcessorEditor::pauseButtonClicked()
 {
+    audioProcessor.pausePlayback();
 }
 
 void AudioFilePlayerVSTAudioProcessorEditor::browseButtonClicked()
@@ -96,17 +98,22 @@ void AudioFilePlayerVSTAudioProcessorEditor::changeState(TransportState newState
         {
         case Stopped:                           
             playButton.setEnabled(true);
+            stopButton.setEnabled(false);
             break;
 
         case Starting:                          
             playButton.setEnabled(false);
+            audioProcessor.startPlayback();
+            changeState(Playing);
             break;
 
         case Playing:                           
             stopButton.setEnabled(true);
             break;
 
-        case Stopping:                     
+        case Stopping:     
+            audioProcessor.stopPlayback();
+            changeState(Stopped);
             break;
         }
     }
@@ -118,4 +125,9 @@ void AudioFilePlayerVSTAudioProcessorEditor::fileChosenCallBack(const juce::File
     fileNameLabel.setText(file.getFileName(), juce::NotificationType::dontSendNotification);
     browseButton.setButtonText("Change File...");
     playButton.setEnabled(true);
+}
+
+void AudioFilePlayerVSTAudioProcessorEditor::stopButtonClicked()
+{
+    changeState(Stopping);
 }
